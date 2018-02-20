@@ -1,17 +1,26 @@
 import xmltodict
 from bs4 import BeautifulSoup
 from currentlocation import LocationWeather
+import wget
 
 curr_weather_url = "http://rss.weather.gov.hk/rss/CurrentWeather.xml"
 forecast_weather_url = "http://rss.weather.gov.hk/rss/SeveralDaysWeatherForecast.xml"
 
 is_json = True
-is_all_location = True
+is_all_location = False
+is_forecast = True
 
 def remove_all_alphabet(s):
 	return "".join([i for i in s if i.isdigit()]).strip()
 
-with open('./CurrentWeather.xml') as fd:
+def delete_file(filename):
+	import os
+	if os.path.exists(filename):
+		os.remove("./"+filename)
+
+xml_file = "./current.xml"
+wget.download(curr_weather_url,xml_file, False)
+with open(xml_file) as fd:
 	doc = xmltodict.parse(fd.read())
 	curr_weather_description = doc['rss']['channel']['item']['description']
 	soup = BeautifulSoup(curr_weather_description, 'html.parser')
@@ -56,6 +65,8 @@ with open('./CurrentWeather.xml') as fd:
 			# l = 
 		for l in locations:
 			print(l)
+
+delete_file(xml_file)
 
 
 
