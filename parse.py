@@ -44,7 +44,10 @@ with open(xml_file) as fd:
 					b = curr_weather_list[x].split(":")[1].strip()
 					if x in [2,3,5]:
 						b = "".join([i for i in b if not i.isalpha()]).strip()
-						curr_weather[curr_weather_index_to_key[x]] = float(b)
+						if len(b) > 0:
+							curr_weather[curr_weather_index_to_key[x]] = float(b)
+						else:
+							curr_weather[curr_weather_index_to_key[x]] = ""
 					else:
 						b = curr_weather_list[x].split(":")[1].strip()
 						curr_weather[curr_weather_index_to_key[x]] = b 
