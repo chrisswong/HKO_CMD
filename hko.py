@@ -1,18 +1,10 @@
-def show_current_all_location_weather():
-	d = dict({"abc" : 1})
-	# d = dict()
-	print("show_current_all_location_weather")
-	return d
-
 def show_forecast():
 	d = dict({"abc" : 1})
-	# d = dict()
 	print("show_forecast")
 	return d
 
 def show_location_weather(l):
 	d = dict({"abc" : 1})
-	# d = dict()
 	print("show_location_weather = %s" % l)
 	return d
 
@@ -28,7 +20,6 @@ def save_string_to_file(string="", filename="filename", binary_mode=False):
 import argparse
 import pprint
 from WeatherParser import CurrentWeatherParser
-
 
 parser = argparse.ArgumentParser()
 
@@ -48,13 +39,17 @@ args = parser.parse_args()
 if any(vars(args).values()):
 	d = dict()
 	if args.complete:
-		show_current_HKO_weather()
-		show_current_all_location_weather()
+		c = CurrentWeatherParser()
+		d1 = c.current_weather()
+		d2 = c.location_weather()
+		for k in d1.keys():
+			d[k] = d1[k]
+		for k in d2.keys():
+			d[k] = d2[k]
 	elif args.now: 
 		c = CurrentWeatherParser()
 		d = c.current_weather()
 	elif args.all:
-		# d = show_current_all_location_weather()
 		c = CurrentWeatherParser()
 		d = c.location_weather()
 	elif args.forecast:
@@ -67,7 +62,7 @@ if any(vars(args).values()):
 		if args.output == 'xml':
 			from dicttoxml import dicttoxml
 			from xml.dom.minidom import parseString
-			xml = dicttoxml(d, custom_root='weather', attr_type=False)
+			xml = dicttoxml(d, custom_root='hko', attr_type=False)
 			dom = parseString(xml)
 			save_string_to_file(dom.toprettyxml(), filename)
 		elif args.output == 'json':
@@ -75,21 +70,6 @@ if any(vars(args).values()):
 			json_string = json.dumps(d, indent=4, sort_keys=True)
 			save_string_to_file(json_string, filename)
 	else:
-		# print(d)
 		pprint.pprint(d)
 else:
 	parser.print_help()
-
-
-
-
-
-
-
-# nothing -> current HKO weather
-# -a --all -> shows all location 
-# -l --location [location name] -> show that location name
-# -f --forecast -> show all forecast
-# -v --verbose -> show debug message
-# anything with -j  -> standard output as json format
-# anything with -o {json|xml} [filename] -> output as filename with json or xml

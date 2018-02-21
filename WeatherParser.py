@@ -58,7 +58,7 @@ class CurrentWeatherParser(Parser):
 						b = curr_weather_list[x].split(":")[1].strip()
 						curr_weather[curr_weather_index_to_key[x]] = b 
 
-		return curr_weather
+		return { "CurrentWeather": curr_weather }
 
 	def __loction_weather(self, soup):
 		locations = []
