@@ -1,13 +1,13 @@
 
-def showCurrentHKOWeather():
+def show_current_HKO_weather():
 	d = dict({"abc" : 1})
-	print("showCurrentHKOWeather")
+	print("show_current_HKO_weather")
 	return d
 
-def showCurrentAllLocationWeather():
+def show_current_all_location_weather():
 	d = dict({"abc" : 1})
 	# d = dict()
-	print("showCurrentAllLocationWeather")
+	print("show_current_all_location_weather")
 	return d
 
 def show_forecast():
@@ -46,32 +46,35 @@ parser.add_argument("-v", "--verbose", help="show debug message")
 parser.add_argument("-o", "--output", choices=['xml','json'], help="output as selected file format")
 
 args = parser.parse_args()
-d = dict()
-if args.complete:
-	showCurrentHKOWeather()
-	showCurrentAllLocationWeather()
-elif args.now: 
-	d = showCurrentHKOWeather()
-elif args.all:
-	d = showCurrentAllLocationWeather()
-elif args.forecast:
-	d = show_forecast()
-elif len(args.location) > 0:
-	d = show_location_weather(args.location)
 
-if args.output and len(args.output) > 0:
-	filename = "output."+ args.output
-	if args.output == 'xml':
-		from dicttoxml import dicttoxml
-		from xml.dom.minidom import parseString
-		xml = dicttoxml(d, custom_root='weather', attr_type=False)
-		dom = parseString(xml)
-		save_string_to_file(dom.toprettyxml(), filename)
-	elif args.output == 'json':
-		import json
-		json_string = json.dumps(d, indent=4, sort_keys=True)
-		save_string_to_file(json_string, filename)
+if any(vars(args).values()):
+	d = dict()
+	if args.complete:
+		show_current_HKO_weather()
+		show_current_all_location_weather()
+	elif args.now: 
+		d = show_current_HKO_weather()
+	elif args.all:
+		d = show_current_all_location_weather()
+	elif args.forecast:
+		d = show_forecast()
+	elif len(args.location) > 0:
+		d = show_location_weather(args.location)
 
+	if args.output and len(args.output) > 0:
+		filename = "output."+ args.output
+		if args.output == 'xml':
+			from dicttoxml import dicttoxml
+			from xml.dom.minidom import parseString
+			xml = dicttoxml(d, custom_root='weather', attr_type=False)
+			dom = parseString(xml)
+			save_string_to_file(dom.toprettyxml(), filename)
+		elif args.output == 'json':
+			import json
+			json_string = json.dumps(d, indent=4, sort_keys=True)
+			save_string_to_file(json_string, filename)
+else:
+	parser.print_help()
 
 
 
