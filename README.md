@@ -1,6 +1,10 @@
 # HKO_CMD
 A python command line program to retrieve Hong Kong Observary's weather data.
 
+-- 
+
+# Usage
+
 ```
 $ python3 hko.py -h 
 usage: hko.py [-h] [-c | -n | -a | -f | -l LOCATION] [-v VERBOSE]
@@ -19,3 +23,10 @@ optional arguments:
   -o {xml,json}, --output {xml,json}
                         output as selected file format
 ```
+
+--
+## Work In Process
+
+1. Parsing Forecast data
+2. Getting location-specific current weather
+3. Add debug message for ```-v```
