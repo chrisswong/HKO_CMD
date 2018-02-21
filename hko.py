@@ -1,9 +1,3 @@
-
-def show_current_HKO_weather():
-	d = dict({"abc" : 1})
-	print("show_current_HKO_weather")
-	return d
-
 def show_current_all_location_weather():
 	d = dict({"abc" : 1})
 	# d = dict()
@@ -32,6 +26,10 @@ def save_string_to_file(string="", filename="filename", binary_mode=False):
 	file.close()
 
 import argparse
+import pprint
+from WeatherParser import CurrentWeatherParser
+
+
 parser = argparse.ArgumentParser()
 
 group = parser.add_mutually_exclusive_group()
@@ -53,9 +51,12 @@ if any(vars(args).values()):
 		show_current_HKO_weather()
 		show_current_all_location_weather()
 	elif args.now: 
-		d = show_current_HKO_weather()
+		c = CurrentWeatherParser()
+		d = c.current_weather()
 	elif args.all:
-		d = show_current_all_location_weather()
+		# d = show_current_all_location_weather()
+		c = CurrentWeatherParser()
+		d = c.location_weather()
 	elif args.forecast:
 		d = show_forecast()
 	elif len(args.location) > 0:
@@ -73,6 +74,9 @@ if any(vars(args).values()):
 			import json
 			json_string = json.dumps(d, indent=4, sort_keys=True)
 			save_string_to_file(json_string, filename)
+	else:
+		# print(d)
+		pprint.pprint(d)
 else:
 	parser.print_help()
 
