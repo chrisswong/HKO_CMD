@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 from currentlocation import LocationWeather
 import wget
 
+from forecast import Forecast
+
 class Parser:
 	def remove_all_alphabet(self,s):
 		return "".join([i for i in s if i.isdigit()]).strip()
@@ -13,7 +15,7 @@ class Parser:
 			os.remove("./"+filename)
 
 	def download(self): 
-		wget.download(self.curr_weather_url,self.xml_file, False)
+		wget.download(self.download_xml_url,self.xml_file, False)
 
 	def clean_up(self):
 		self.delete_file(self.xml_file)
@@ -21,7 +23,7 @@ class Parser:
 class CurrentWeatherParser(Parser):
 	def __init__(self):
 		self.xml_file = "./current.xml"
-		self.curr_weather_url = "http://rss.weather.gov.hk/rss/CurrentWeather.xml"
+		self.download_xml_url = "http://rss.weather.gov.hk/rss/CurrentWeather.xml"
 
 	def __parse(self):
 		with open(self.xml_file) as fd:
@@ -70,14 +72,14 @@ class CurrentWeatherParser(Parser):
 		return {"location_weather": locations}
 
 	def current_weather(self):
-		self.download();
+		self.download()
 		soup = self.__parse()
 		d = self.__current_weather(soup)
 		self.clean_up()
 		return d 
 
 	def location_weather(self, location=""):
-		self.download();
+		self.download()
 		soup = self.__parse()
 		d = self.__loction_weather(soup)
 		self.clean_up()
@@ -85,6 +87,59 @@ class CurrentWeatherParser(Parser):
 
 class ForecastWeatherParser(Parser):
 	def __init__(self):
-		self.xml = "./forecast.xml"
-		self.forecast_weather_url = "http://rss.weather.gov.hk/rss/SeveralDaysWeatherForecast.xml"
+		self.xml_file = "./forecast.xml"
+		# self.xml_file = "./SeveralDaysWeatherForecast.xml"
+		self.download_xml_url = "http://rss.weather.gov.hk/rss/SeveralDaysWeatherForecast.xml"
+
+	def __forecast(self, soup):
+		keys = ["Date/Month:", "Wind:", "Weather:" , "Temp range:", "R.H. range:"]
+		l = soup.get_text().split('\n')
+		forecast_list = []
+		# b = []
+		# for a in l:
+		date = ""
+		wind = ""
+		weather = ""
+		temp = ""
+		rh = ""
+		last_date = ""
+		is_first_date = True
+		for i in range(0, len(l)):
+			s = l[i].strip()
+			if i + 2 < len(l):
+				if s == keys[0]:
+					date = l[i+1].strip()
+				elif s == keys[1]:
+					wind = l[i+1].strip()
+				elif s == keys[3]:
+					temp = l[i+1].strip() + " " + l[i+2].strip()
+				elif s == keys[4]:
+					rh = l[i+1].strip() + " " + l[i+2].strip() 
+				elif s == keys[2]:
+					weather = l[i+1].strip() 
+				if len([x for x in [date, wind, weather, temp, rh] if len(x) > 0]) == 5:
+					f = Forecast(date, wind, weather, temp, rh)
+					forecast_list.append(str(f))
+					date = ""
+					wind = ""
+					weather = ""
+					temp = ""
+					rh = ""
+
+		return {"general_situation" : l[0].split(":")[1], "forecast" : forecast_list }
+
+	def __parse(self):
+		with open(self.xml_file) as fd:
+			doc = xmltodict.parse(fd.read())
+			curr_weather_description = doc['rss']['channel']['item']['description']
+			soup = BeautifulSoup(curr_weather_description, 'html.parser')
+			return soup
+
+	def forecast(self):
+		self.download()
+		soup = self.__parse()
+		d = self.__forecast(soup)
+		self.clean_up()
+		return d
+
 
