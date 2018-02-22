@@ -1,8 +1,3 @@
-def show_forecast():
-	d = dict({"abc" : 1})
-	print("show_forecast")
-	return d
-
 def show_location_weather(l):
 	d = dict({"abc" : 1})
 	print("show_location_weather = %s" % l)
@@ -20,6 +15,7 @@ def save_string_to_file(string="", filename="filename", binary_mode=False):
 import argparse
 import pprint
 from WeatherParser import CurrentWeatherParser
+from WeatherParser import ForecastWeatherParser
 
 parser = argparse.ArgumentParser()
 
@@ -53,7 +49,8 @@ if any(vars(args).values()):
 		c = CurrentWeatherParser()
 		d = c.location_weather()
 	elif args.forecast:
-		d = show_forecast()
+		f = ForecastWeatherParser()
+		d = f.forecast()
 	elif len(args.location) > 0:
 		d = show_location_weather(args.location)
 
