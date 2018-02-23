@@ -94,7 +94,7 @@ class ForecastWeatherParser(Parser):
 		# self.xml_file = "./SeveralDaysWeatherForecast.xml"
 		self.download_xml_url = "http://rss.weather.gov.hk/rss/SeveralDaysWeatherForecast.xml"
 
-	def __forecast(self, soup):
+	def __forecast(self, soup, num_of_days_of_forecast):
 		keys = ["Date/Month:", "Wind:", "Weather:" , "Temp range:", "R.H. range:"]
 		l = soup.get_text().split('\n')
 		forecast_list = []
@@ -129,7 +129,7 @@ class ForecastWeatherParser(Parser):
 					temp = ""
 					rh = ""
 
-		return {"general_situation" : l[0].split(":")[1], "forecast" : forecast_list }
+		return {"general_situation" : l[0].split(":")[1], "forecast" : forecast_list[0:num_of_days_of_forecast] }
 
 	def __parse(self):
 		with open(self.xml_file) as fd:
@@ -138,10 +138,13 @@ class ForecastWeatherParser(Parser):
 			soup = BeautifulSoup(curr_weather_description, 'html.parser')
 			return soup
 
-	def forecast(self):
+	def forecast(self, num_of_days_of_forecast = 9):
 		self.download()
 		soup = self.__parse()
-		d = self.__forecast(soup)
+		if num_of_days_of_forecast > 9 or num_of_days_of_forecast < 0:
+			num_of_days_of_forecast = 9
+
+		d = self.__forecast(soup, num_of_days_of_forecast)
 		self.clean_up()
 		return d
 

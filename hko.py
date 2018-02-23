@@ -23,7 +23,7 @@ group = parser.add_mutually_exclusive_group()
 group.add_argument("-c", "--complete", help="show current HKO weather and all location weather.", action="store_true")
 group.add_argument("-n", "--now", help="show current HKO weather.", action="store_true")
 group.add_argument("-a", "--all", help="show all location current temp.", action="store_true")
-group.add_argument("-f", "--forecast", help="show upcoming forecast.", action="store_true")
+group.add_argument("-f", "--forecast", help="show upcoming [1-9] days forecast. ", type=int)
 group.add_argument("-l", "--location", help="show specify location current temp.")
 
 
@@ -48,9 +48,9 @@ if any(vars(args).values()):
 	elif args.all:
 		c = CurrentWeatherParser()
 		d = c.location_weather()
-	elif args.forecast:
+	elif args.forecast > 0:
 		f = ForecastWeatherParser()
-		d = f.forecast()
+		d = f.forecast(args.forecast)
 	elif len(args.location) > 0:
 		c = CurrentWeatherParser()
 		d = c.location_weather(args.location)
