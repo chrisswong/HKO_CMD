@@ -13,3 +13,10 @@ class Forecast:
 		return "%s %s %s %s %s" % (self.date, self.wind, self.weather_desc, self.temp, self.rh)
 	def short_desc(self):
 		return "Date: %s" % (self.date)
+
+	def dict(self):
+		return {"date": self.date, 
+				"wind": self.wind, 
+				"weather_desc": self.weather_desc,
+				"temp": self.temp,
+				"rh": self.rh }

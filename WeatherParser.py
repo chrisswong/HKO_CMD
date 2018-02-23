@@ -122,7 +122,7 @@ class ForecastWeatherParser(Parser):
 					weather = l[i+1].strip() 
 				if len([x for x in [date, wind, weather, temp, rh] if len(x) > 0]) == 5:
 					f = Forecast(date, wind, weather, temp, rh)
-					forecast_list.append(str(f))
+					forecast_list.append(f.dict())
 					date = ""
 					wind = ""
 					weather = ""
