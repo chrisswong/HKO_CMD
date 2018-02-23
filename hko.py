@@ -52,7 +52,8 @@ if any(vars(args).values()):
 		f = ForecastWeatherParser()
 		d = f.forecast()
 	elif len(args.location) > 0:
-		d = show_location_weather(args.location)
+		c = CurrentWeatherParser()
+		d = c.location_weather(args.location)
 
 	if args.output and len(args.output) > 0:
 		filename = "output."+ args.output

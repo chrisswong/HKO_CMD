@@ -82,6 +82,9 @@ class CurrentWeatherParser(Parser):
 		self.download()
 		soup = self.__parse()
 		d = self.__loction_weather(soup)
+		if len(location) > 0:
+			l = [ x for x in d["location_weather"] if location in x ]
+			d["location_weather"] = l
 		self.clean_up()
 		return d
 

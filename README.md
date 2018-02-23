@@ -28,7 +28,7 @@ optional arguments:
 ## Work In Process
 
 1. Parsing Forecast data [Done]
-2. Getting location-specific current weather
+2. Getting location-specific current weather [Done]
 3. Add debug message for ```-v```
 4. Add ```-s``` for serving json and xml with Flask
 5. Add current weather alerts 
