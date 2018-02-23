@@ -7,7 +7,7 @@ from flask import jsonify
 from flask import Response
 
 def save_string_to_file(string="", filename="filename", binary_mode=False):
-    if not binary_mode:
+	if not binary_mode:
 		mode = 'w'
 	else:
 		mode = 'wb'
