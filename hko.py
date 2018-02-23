@@ -48,12 +48,12 @@ if any(vars(args).values()):
 	elif args.all:
 		c = CurrentWeatherParser()
 		d = c.location_weather()
-	elif args.forecast > 0:
-		f = ForecastWeatherParser()
-		d = f.forecast(args.forecast)
-	elif len(args.location) > 0:
+	elif args.forecast == None and len(args.location) > 0:
 		c = CurrentWeatherParser()
 		d = c.location_weather(args.location)
+	elif args.forecast > 0 and args.location == None:
+		f = ForecastWeatherParser()
+		d = f.forecast(args.forecast)
 
 	if args.output and len(args.output) > 0:
 		filename = "output."+ args.output
