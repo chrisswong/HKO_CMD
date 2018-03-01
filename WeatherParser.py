@@ -6,31 +6,28 @@ import wget
 
 from forecast import Forecast
 
+import requests
+
 class Parser:
 	def remove_all_alphabet(self,s):
 		return "".join([i for i in s if i.isdigit()]).strip()
 
-	def delete_file(self,filename):
-		if os.path.exists(filename):
-			os.remove("./"+filename)
-
-	def download(self): 
-		wget.download(self.download_xml_url,self.xml_file, False)
-
-	def clean_up(self):
-		self.delete_file(self.xml_file)
+	def content_for_url(self, url):
+		if len(url) > 0:
+			r = requests.get(url)
+			return r.text
+		else:
+			return None
 
 class CurrentWeatherParser(Parser):
 	def __init__(self):
 		self.xml_file = "./current.xml"
 		self.download_xml_url = "http://rss.weather.gov.hk/rss/CurrentWeather.xml"
 
-	def __parse(self):
-		with open(self.xml_file) as fd:
-			doc = xmltodict.parse(fd.read())
-			curr_weather_description = doc['rss']['channel']['item']['description']
-			soup = BeautifulSoup(curr_weather_description, 'html.parser')
-			return soup
+	def __parse_content(self, content):
+		doc = xmltodict.parse(content)
+		soup = BeautifulSoup(doc['rss']['channel']['item']['description'], 'html.parser')
+		return soup
 
 	def __current_weather(self, soup):
 		text_list = soup.find('p').get_text()
@@ -60,7 +57,7 @@ class CurrentWeatherParser(Parser):
 						b = curr_weather_list[x].split(":")[1].strip()
 						curr_weather[curr_weather_index_to_key[x]] = b 
 
-		return { "CurrentWeather": curr_weather }
+		return { "current_weather": curr_weather }
 
 	def __loction_weather(self, soup):
 		locations = []
@@ -72,20 +69,18 @@ class CurrentWeatherParser(Parser):
 		return {"location_weather": locations}
 
 	def current_weather(self):
-		self.download()
-		soup = self.__parse()
+		xml_content = self.content_for_url(self.download_xml_url)
+		soup = self.__parse_content(xml_content)
 		d = self.__current_weather(soup)
-		self.clean_up()
 		return d 
 
 	def location_weather(self, location=""):
-		self.download()
-		soup = self.__parse()
+		xml_content = self.content_for_url(self.download_xml_url)
+		soup = self.__parse_content(xml_content)
 		d = self.__loction_weather(soup)
 		if len(location) > 0:
 			l = [ x for x in d["location_weather"] if location in x ]
 			d["location_weather"] = l
-		self.clean_up()
 		return d
 
 class ForecastWeatherParser(Parser):
@@ -138,9 +133,16 @@ class ForecastWeatherParser(Parser):
 			soup = BeautifulSoup(curr_weather_description, 'html.parser')
 			return soup
 
+	def __parse_content(self, content):
+		doc = xmltodict.parse(content)
+		soup = BeautifulSoup(doc['rss']['channel']['item']['description'], 'html.parser')
+		return soup
+
+
 	def forecast(self, num_of_days_of_forecast = 9):
-		self.download()
-		soup = self.__parse()
+		xml_content = self.content_for_url(self.download_xml_url)
+
+		soup = self.__parse_content(xml_content)
 		if num_of_days_of_forecast > 9 or num_of_days_of_forecast < 0:
 			num_of_days_of_forecast = 9
 
