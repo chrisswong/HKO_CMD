@@ -21,7 +21,6 @@ class Parser:
 
 class CurrentWeatherParser(Parser):
 	def __init__(self):
-		self.xml_file = "./current.xml"
 		self.download_xml_url = "http://rss.weather.gov.hk/rss/CurrentWeather.xml"
 
 	def __parse_content(self, content):
@@ -85,8 +84,6 @@ class CurrentWeatherParser(Parser):
 
 class ForecastWeatherParser(Parser):
 	def __init__(self):
-		self.xml_file = "./forecast.xml"
-		# self.xml_file = "./SeveralDaysWeatherForecast.xml"
 		self.download_xml_url = "http://rss.weather.gov.hk/rss/SeveralDaysWeatherForecast.xml"
 
 	def __forecast(self, soup, num_of_days_of_forecast):
