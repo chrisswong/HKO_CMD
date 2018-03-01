@@ -1,10 +1,16 @@
 import argparse
 import pprint
-from WeatherParser import CurrentWeatherParser
-from WeatherParser import ForecastWeatherParser
+
 from flask import Flask 
 from flask import jsonify
 from flask import Response
+from WeatherManager import WeatherManager
+
+from WeatherParser import CurrentWeatherParser
+from WeatherParser import RegionWeatherParser
+from WeatherParser import ForecastWeatherParser
+
+
 
 def save_string_to_file(string="", filename="filename", binary_mode=False):
 	if not binary_mode:
@@ -32,44 +38,33 @@ app = Flask(__name__)
 
 @app.route('/now/<format>')
 def now(format):
-	c = CurrentWeatherParser()
-	d = c.current_weather()
-	return handle_format(d, format)
+	manager = WeatherManager()
+	return handle_format(manager.now(), format)
 
 @app.route('/complete/<format>')
 def complete(format):
-	c = CurrentWeatherParser()
-	d1 = c.current_weather()
-	d2 = c.location_weather()
-	for k in d1.keys():
-		d[k] = d1[k]
-	for k in d2.keys():
-		d[k] = d2[k]
-	return handle_format(d, format)
+	manager = WeatherManager()
+	return handle_format(manager.complete(), format)
 
 @app.route('/all/<format>')
 def all(format):
-	c = CurrentWeatherParser()
-	d = c.location_weather()
-	return handle_format(d, format)
+	manager = WeatherManager()
+	return handle_format(manager.all_location(), format)
 
 @app.route('/forecast9Days/<format>')
 def forecast9Days(format):
-	f = ForecastWeatherParser()
-	d = f.forecast()
-	return handle_format(d, format)
+	manager = WeatherManager()
+	return handle_format(manager.forecast(), format)
 
 @app.route('/forecast/<int:num_of_days>/<format>')
 def forecast(num_of_days, format):
-	f = ForecastWeatherParser()
-	d = f.forecast(num_of_days)
-	return handle_format(d, format)
+	manager = WeatherManager()
+	return handle_format(manager.forecast(num_of_days), format)
 
 @app.route('/location/<keyword>')
 def location(format):
-	c = CurrentWeatherParser()
-	d = c.location_weather(keyword)
-
+	manager = WeatherManager()
+	return handle_format(manager.location(keyword), format)
 
 
 parser = argparse.ArgumentParser()
@@ -77,10 +72,12 @@ parser = argparse.ArgumentParser()
 group = parser.add_mutually_exclusive_group()
 group.add_argument("-c", "--complete", help="show current HKO weather and all location weather.", action="store_true")
 group.add_argument("-n", "--now", help="show current HKO weather.", action="store_true")
-group.add_argument("-a", "--all", help="show all location current temp.", action="store_true")
-group.add_argument("-s", "--server", help="start a flask server for serving json and xml (Go to http://127.0.0.1:5000 for description)", action="store_true")
+group.add_argument("-a", "--all-location", help="show all locations' weather.", action="store_true")
+group.add_argument("-l", "--location", help="show specific location's current weather. shows all no location name specific.")
 group.add_argument("-f", "--forecast", help="show upcoming [1-9] days forecast. ", type=int)
-group.add_argument("-l", "--location", help="show specify location current temp.")
+
+
+group.add_argument("-s", "--server", help="start a flask server for serving json and xml (Go to http://127.0.0.1:5000 for description)", action="store_true")
 
 
 parser.add_argument("-v", "--verbose", help="show debug message")
@@ -90,28 +87,19 @@ args = parser.parse_args()
 
 if any(vars(args).values()):
 	d = dict()
+	manager = WeatherManager()
 	if args.complete:
-		c = CurrentWeatherParser()
-		d1 = c.current_weather()
-		d2 = c.location_weather()
-		for k in d1.keys():
-			d[k] = d1[k]
-		for k in d2.keys():
-			d[k] = d2[k]
+		d = manager.complete()
 	elif args.now: 
-		c = CurrentWeatherParser()
-		d = c.current_weather()
-	elif args.all:
-		c = CurrentWeatherParser()
-		d = c.location_weather()
+		d = manager.now()
+	elif args.all_location:
+		d = manager.all_location()
 	elif args.server:
 		app.run()
-	elif args.forecast == None and len(args.location) > 0:
-		c = CurrentWeatherParser()
-		d = c.location_weather(args.location)
+	elif args.forecast == None:
+		d = manager.location(args.location)
 	elif args.forecast > 0 and args.location == None:
-		f = ForecastWeatherParser()
-		d = f.forecast(args.forecast)
+		d = manager.forecast(args.forecast)
 
 	if args.output and len(args.output) > 0:
 		filename = "output."+ args.output

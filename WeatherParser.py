@@ -2,11 +2,12 @@ import os
 import xmltodict
 from bs4 import BeautifulSoup
 from currentlocation import LocationWeather
-import wget
 
 from forecast import Forecast
 
 import requests
+import json
+import csv
 
 class Parser:
 	def remove_all_alphabet(self,s):
@@ -81,6 +82,45 @@ class CurrentWeatherParser(Parser):
 			l = [ x for x in d["location_weather"] if location in x ]
 			d["location_weather"] = l
 		return d
+
+class RegionWeatherParser(Parser):
+	def __init__(self):
+		self.url = "http://www.hko.gov.hk/wxinfo/json/region_json.xml"
+
+	def __handle__(self, response, location=""):
+		a = []
+		repsonse_dict = json.loads(response)
+		region_weather_data = repsonse_dict["datas"]
+		region_code_list = self.__read_csv()
+		fields = repsonse_dict["fields"]
+		for region in region_weather_data:
+			region_dict = dict()
+			for index, field in enumerate(fields):
+				region_dict[field] = region[index]
+
+			for region_code, region_full_name in region_code_list:
+				if region[0] == region_code:
+					region_dict["full_name"] = region_full_name 
+			
+			if len(location) > 0:
+				if location.lower() in region_dict["full_name"].lower():
+					a.append(region_dict)
+			else:	
+				a.append(region_dict)
+		return a
+
+
+	def __read_csv(self):
+		region_code_list = []
+		with open('region_code_to_name.csv', mode='r') as infile:
+			reader = csv.reader(infile)
+			for row in reader:
+				region_code_list.append((row[0],row[1]))
+		return region_code_list		
+
+	def retrieve(self,location=""):
+		json_content = self.content_for_url(self.url)
+		return self.__handle__(json_content,location)
 
 class ForecastWeatherParser(Parser):
 	def __init__(self):
