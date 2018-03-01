@@ -61,8 +61,8 @@ def forecast(num_of_days, format):
 	manager = WeatherManager()
 	return handle_format(manager.forecast(num_of_days), format)
 
-@app.route('/location/<keyword>')
-def location(format):
+@app.route('/location/<keyword>/<format>')
+def location(keyword, format):
 	manager = WeatherManager()
 	return handle_format(manager.location(keyword), format)
 
