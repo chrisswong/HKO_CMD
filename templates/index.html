@@ -51,7 +51,7 @@
 					EndPoints
 				</h1>
 				<ul class="list-group">
-				    <button type="button" class="list-group-item" data-api-url="now" id="now-button">Current HKO Weather</button>
+				  <button type="button" class="list-group-item" data-api-url="now" id="now-button">Current HKO Weather</button>
 					<button type="button" class="list-group-item" data-api-url="all">Current All Location Weather</button>
 					<button type="button" class="list-group-item" data-api-url="complete">Current Complete Weather</button>
 					<button type="button" class="list-group-item" data-api-url="location/Tai">Current Location-specific Weather</button>
@@ -61,9 +61,11 @@
 			<div class="col-md-6">
 				<div class="input-group">
 			      <input type="text" class="form-control" placeholder="Url" id="url-text-box">
-			      <span class="input-group-btn">
-			        <button class="btn btn-default" type="button">/json</button>
-			      </span>
+            <div class="input-group-btn">
+              <button class="btn btn-primary" type="button" id="json-button" data-format="json">/json</button>
+              <button class="btn btn-default" type="button" id="xml-button" data-format="xml">/xml</button>
+              <button class="btn btn-success" type="button">Submit</button>
+            </div>
 			    </div>
 				<div style="text-align: left">
 					<pre>
@@ -85,20 +87,59 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script>hljs.initHighlightingOnLoad();</script>
     <script type="text/javascript">
-    	
+    	var format = "json";
+      var selectedApi = "now";
+
     	$( document ).ready(function() {
     		$(".list-group-item").on('click', function(event) {
     			url = $(this).attr('data-api-url');
-    			$("#url-text-box").val("/" + url )
-    			$.get( url + "/json", function( data ) {
-				  $( "#result").text( JSON.stringify(data, null, 2) );
+          selectedApi = url;
+    			$("#url-text-box").val("/" + url );
+          console.log(url + "/" + format);
+    			$.get( url + "/" + format, function( data ) {
+          if(format == "json") {
+            $( "#result").text( JSON.stringify(data, null, 2) );
+            $('pre code').addClass('json');
+            $('pre code').removeClass('xml');
+
+
+          } else {
+            $("#result").text( new XMLSerializer().serializeToString(data) );
+            // http://www.eslinstructor.net/vkbeautify/
+            $('pre code').addClass('xml');
+            $('pre code').removeClass('json');
+
+          }
+				  
 				    $('pre code').each(function(i, block) {
     					hljs.highlightBlock(block);
   					});
 				});
-    		});
 
-    		$("#now-button").click();
+
+        $("#xml-button").on('click', function(event) {
+          if (!$(this).hasClass('btn-primary')) {
+            $(this).addClass('btn-primary');
+            $(this).removeClass('btn-default')
+            $("#json-button").addClass('btn-default');
+            $("#json-button").removeClass('btn-primary')
+            format = $(this).attr("data-format");
+          } 
+        });
+
+        $("#json-button").on('click', function(event) {
+          if (!$(this).hasClass('btn-primary')) {
+            $(this).addClass('btn-primary');
+            $(this).removeClass('btn-default');
+            $("#xml-button").addClass('btn-default');
+            $("#xml-button").removeClass('btn-primary');
+            format = $(this).attr("data-format");
+          } 
+        });
+
+    	});
+
+    	$("#now-button").click();
 		});
     </script>
   </body>
