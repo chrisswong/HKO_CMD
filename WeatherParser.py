@@ -144,7 +144,6 @@ class ForecastWeatherParser(Parser):
 			num_of_days_of_forecast = 9
 
 		d = self.__forecast(soup, num_of_days_of_forecast)
-		self.clean_up()
 		return d
 
 
