@@ -4,13 +4,8 @@ import pprint
 from flask import Flask 
 from flask import jsonify
 from flask import Response
+from flask import render_template
 from WeatherManager import WeatherManager
-
-from WeatherParser import CurrentWeatherParser
-from WeatherParser import RegionWeatherParser
-from WeatherParser import ForecastWeatherParser
-
-
 
 def save_string_to_file(string="", filename="filename", binary_mode=False):
 	if not binary_mode:
@@ -61,10 +56,16 @@ def forecast(num_of_days, format):
 	manager = WeatherManager()
 	return handle_format(manager.forecast(num_of_days), format)
 
-@app.route('/location/<keyword>')
-def location(format):
+@app.route('/location/<keyword>/<format>')
+def location(keyword, format):
 	manager = WeatherManager()
 	return handle_format(manager.location(keyword), format)
+
+@app.route('/')
+@app.route('/index')
+def index():
+	return render_template('index.html')
+
 
 
 parser = argparse.ArgumentParser()
